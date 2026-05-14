@@ -1,0 +1,1416 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>당뇨·혈압 귀여운 건강노트</title>
+  <style>
+    :root {
+      --bg1: #fff7ed;
+      --bg2: #eef6ff;
+      --pink: #fb7185;
+      --pink-dark: #e11d48;
+      --blue: #38bdf8;
+      --blue-dark: #0369a1;
+      --mint: #34d399;
+      --green: #059669;
+      --yellow: #fbbf24;
+      --orange: #fb923c;
+      --red: #ef4444;
+      --purple: #a78bfa;
+      --text: #334155;
+      --muted: #64748b;
+      --line: #f1d9d9;
+      --card: rgba(255, 255, 255, 0.84);
+      --shadow: 0 20px 50px rgba(100, 116, 139, 0.16);
+      --radius: 30px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 10% 5%, rgba(251, 113, 133, 0.20), transparent 30%),
+        radial-gradient(circle at 88% 12%, rgba(56, 189, 248, 0.22), transparent 28%),
+        radial-gradient(circle at 55% 90%, rgba(52, 211, 153, 0.18), transparent 32%),
+        linear-gradient(135deg, var(--bg1), var(--bg2));
+      min-height: 100vh;
+    }
+
+    button, input, select, textarea { font-family: inherit; }
+    button { border: 0; cursor: pointer; }
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid #f0d9de;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.9);
+      padding: 13px 14px;
+      outline: none;
+      color: var(--text);
+      font-size: 15px;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--pink);
+      box-shadow: 0 0 0 4px rgba(251, 113, 133, 0.14);
+    }
+
+    .app {
+      width: min(1160px, 100%);
+      margin: 0 auto;
+      padding: 16px 12px 90px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 36px;
+      padding: 26px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255,255,255,0.72)),
+        linear-gradient(135deg, #ffe4e6, #dbeafe);
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.8);
+    }
+
+    .hero::before {
+      content: "🧸";
+      position: absolute;
+      right: 26px;
+      top: 18px;
+      font-size: 76px;
+      opacity: 0.18;
+      transform: rotate(12deg);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      left: -55px;
+      bottom: -55px;
+      width: 190px;
+      height: 190px;
+      border-radius: 999px;
+      background: rgba(251, 113, 133, 0.16);
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 1.2fr 0.9fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 13px;
+      border-radius: 999px;
+      background: #fff1f2;
+      color: #be123c;
+      border: 1px solid #fecdd3;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    h1 {
+      margin: 16px 0 10px;
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 1.08;
+      letter-spacing: -0.05em;
+      color: #1e293b;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 680px;
+      line-height: 1.65;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .hero-summary {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .mini-card {
+      border-radius: 26px;
+      padding: 16px;
+      background: rgba(255,255,255,0.82);
+      border: 1px solid rgba(255,255,255,0.95);
+      box-shadow: 0 10px 25px rgba(100,116,139,0.10);
+    }
+    .mini-label { color: #94a3b8; font-size: 12px; font-weight: 900; }
+    .mini-value { margin-top: 6px; display: flex; align-items: end; gap: 5px; }
+    .mini-value strong { font-size: 28px; letter-spacing: -0.04em; color: #0f172a; }
+    .mini-value span { padding-bottom: 4px; color: var(--muted); font-size: 12px; font-weight: 800; }
+    .mini-sub { margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.35; }
+
+    .tabs {
+      position: sticky;
+      top: 8px;
+      z-index: 20;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      margin: 16px 0;
+      padding: 7px;
+      border-radius: 26px;
+      background: rgba(255,255,255,0.78);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 10px 30px rgba(100,116,139,0.10);
+      border: 1px solid rgba(255,255,255,0.88);
+    }
+    .tab-btn {
+      border-radius: 20px;
+      padding: 12px 6px;
+      background: transparent;
+      color: #64748b;
+      font-weight: 1000;
+      font-size: 13px;
+    }
+    .tab-btn.active {
+      color: white;
+      background: linear-gradient(135deg, var(--pink), #f59e0b);
+      box-shadow: 0 10px 18px rgba(251, 113, 133, 0.22);
+    }
+
+    .view { display: none; }
+    .view.active { display: block; }
+
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .grid-2 { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+
+    .card {
+      border-radius: var(--radius);
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.88);
+      box-shadow: 0 12px 34px rgba(100,116,139,0.11);
+      backdrop-filter: blur(10px);
+    }
+    .p-card { padding: 18px; }
+    .section-title {
+      margin: 0;
+      color: #1e293b;
+      font-size: 20px;
+      font-weight: 1000;
+      letter-spacing: -0.035em;
+    }
+    .section-sub {
+      margin: 5px 0 0;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    .stat {
+      padding: 17px;
+      min-height: 122px;
+      position: relative;
+      overflow: hidden;
+    }
+    .stat::after {
+      content: attr(data-emoji);
+      position: absolute;
+      right: 12px;
+      bottom: 8px;
+      font-size: 42px;
+      opacity: 0.16;
+    }
+    .stat-label { color: #94a3b8; font-size: 12px; font-weight: 900; }
+    .stat-value { margin-top: 7px; font-size: 27px; font-weight: 1000; letter-spacing: -0.045em; color: #0f172a; }
+    .stat-sub { margin-top: 5px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+
+    .status {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 17px;
+      margin: 14px 0;
+      border-radius: var(--radius);
+      border: 1px solid transparent;
+    }
+    .status h3 { margin: 0; font-size: 16px; }
+    .status p { margin: 5px 0 0; font-size: 13px; line-height: 1.45; }
+    /* 경고등 색상 의미
+       빨강: 높음/추가 확인 필요
+       노랑: 주의/상한 근접
+       초록: 목표 범위
+       파랑: 목표보다 낮음
+    */
+    .s-good { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+    .s-watch { background: #fffbeb; color: #b45309; border-color: #fde68a; }
+    .s-high, .s-danger { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+    .s-low { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .s-normal { background: #f8fafc; color: #475569; border-color: #e2e8f0; }
+
+    .btn {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 0 15px;
+      border-radius: 17px;
+      color: white;
+      font-weight: 1000;
+      background: linear-gradient(135deg, var(--pink), #f59e0b);
+      white-space: nowrap;
+    }
+    .btn.blue { background: linear-gradient(135deg, #38bdf8, #2563eb); }
+    .btn.green { background: linear-gradient(135deg, #34d399, #059669); }
+    .btn.purple { background: linear-gradient(135deg, #c4b5fd, #7c3aed); }
+    .btn.dark { background: #1e293b; }
+    .btn.light { background: white; color: #334155; border: 1px solid #e2e8f0; }
+    .btn.full { width: 100%; min-height: 56px; border-radius: 22px; font-size: 16px; margin-top: 14px; }
+    .btn.small { min-height: 34px; padding: 0 10px; border-radius: 13px; font-size: 12px; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .field { display: grid; gap: 7px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label { font-size: 13px; color: #475569; font-weight: 900; }
+
+    .big-input {
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      border: 1px solid #f0d9de;
+      border-radius: 24px;
+      background: white;
+    }
+    .big-input input { border: 0; box-shadow: none !important; font-size: 32px; font-weight: 1000; letter-spacing: -0.04em; }
+    .big-input span { padding-right: 14px; color: #94a3b8; font-weight: 900; font-size: 13px; }
+
+    .check-row {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 14px;
+      border: 1px solid #f0d9de;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.72);
+    }
+    .check-row strong { display: block; font-size: 14px; }
+    .check-row span { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; }
+    .check-row input { width: 24px; height: 24px; }
+
+    .record-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 14px 0;
+    }
+    .record-tab {
+      border-radius: 18px;
+      padding: 12px 8px;
+      background: #fff7ed;
+      color: #9a3412;
+      font-weight: 1000;
+    }
+    .record-tab.active { background: #fb7185; color: white; }
+
+    .record-form { display: none; }
+    .record-form.active { display: block; }
+
+    .chart { margin-top: 14px; border-radius: 24px; background: #fff; overflow: hidden; border: 1px solid #f1f5f9; }
+    svg { display: block; width: 100%; height: auto; }
+
+    .timeline { display: grid; gap: 10px; margin-top: 12px; }
+    .item {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 14px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.78);
+      border: 1px solid rgba(241,245,249,0.95);
+    }
+    .item-icon {
+      width: 56px;
+      height: 56px;
+      display: grid;
+      place-items: center;
+      border-radius: 20px;
+      background: #fff1f2;
+      font-size: 24px;
+    }
+    .item strong { display: block; font-size: 15px; color: #1e293b; }
+    .item span { display: block; color: var(--muted); font-size: 12px; line-height: 1.45; margin-top: 4px; }
+    .item-memo { grid-column: 2 / 4; padding: 10px 12px; border-radius: 16px; background: #f8fafc; color: #475569; font-size: 13px; line-height: 1.45; }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 1000;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .empty {
+      padding: 30px 16px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.68);
+      text-align: center;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .side-note, .warning, .cute-note {
+      padding: 16px;
+      border-radius: 24px;
+      font-size: 14px;
+      line-height: 1.65;
+      border: 1px solid transparent;
+    }
+    .side-note { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .warning { background: #fff1f2; color: #be123c; border-color: #fecdd3; }
+    .cute-note { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+
+    .list { display: grid; gap: 10px; margin-top: 12px; }
+    .pill-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 13px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.78);
+      border: 1px solid #f1f5f9;
+    }
+    .pill-row strong { display: block; color: #1e293b; font-size: 14px; }
+    .pill-row span { display: block; color: var(--muted); font-size: 12px; margin-top: 3px; line-height: 1.4; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%);
+      z-index: 999;
+      width: min(520px, calc(100% - 24px));
+      display: none;
+      padding: 15px 16px;
+      border-radius: 24px;
+      background: #1e293b;
+      color: white;
+      box-shadow: var(--shadow);
+      font-weight: 900;
+      line-height: 1.45;
+    }
+    .toast.show { display: block; animation: pop 0.25s ease-out; }
+    @keyframes pop { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+    .footer {
+      text-align: center;
+      margin-top: 18px;
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 920px) {
+      .hero-grid, .grid-2 { grid-template-columns: 1fr; }
+      .grid-4 { grid-template-columns: repeat(2, 1fr); }
+      .grid-3 { grid-template-columns: 1fr; }
+      .tabs { grid-template-columns: repeat(4, 1fr); gap: 4px; padding: 5px; }
+      .tab-btn { font-size: 11px; padding: 11px 2px; border-radius: 16px; }
+      .record-tabs { grid-template-columns: repeat(2, 1fr); }
+      .form-grid { grid-template-columns: 1fr; }
+      .hero { padding: 22px; border-radius: 28px; }
+      .hero-summary { grid-template-columns: repeat(2, 1fr); }
+      .item { grid-template-columns: auto 1fr; }
+      .item-actions { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: center; }
+      .item-memo { grid-column: 1 / -1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="badge">🌷 당뇨·혈압·당화혈색소·진료일정 통합 건강노트</div>
+          <h1>오늘도 내 몸을<br />귀엽게 챙겨요</h1>
+          <p>혈당, 혈압, 당화혈색소, 약 복용, 병원 진료일정과 알림까지 한 화면에서 관리하는 개인용 건강 기록장입니다.</p>
+        </div>
+        <div class="hero-summary">
+          <div class="mini-card"><div class="mini-label">최근 혈당</div><div class="mini-value"><strong id="heroGlucose">--</strong><span>mg/dL</span></div><div id="heroGlucoseSub" class="mini-sub">기록 없음</div></div>
+          <div class="mini-card"><div class="mini-label">최근 혈압</div><div class="mini-value"><strong id="heroBp">--/--</strong><span>mmHg</span></div><div id="heroBpSub" class="mini-sub">기록 없음</div></div>
+          <div class="mini-card"><div class="mini-label">최근 당화혈색소</div><div class="mini-value"><strong id="heroA1c">--</strong><span>%</span></div><div id="heroA1cSub" class="mini-sub">기록 없음</div></div>
+          <div class="mini-card"><div class="mini-label">다음 진료</div><div class="mini-value"><strong id="heroAppt">--</strong><span></span></div><div id="heroApptSub" class="mini-sub">일정 없음</div></div>
+        </div>
+      </div>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="dashboard">홈</button>
+      <button class="tab-btn" data-tab="record">기록</button>
+      <button class="tab-btn" data-tab="schedule">일정</button>
+      <button class="tab-btn" data-tab="settings">설정</button>
+    </nav>
+
+    <section id="dashboard" class="view active">
+      <div class="grid-4">
+        <div class="card stat" data-emoji="🍬"><div class="stat-label">오늘 혈당</div><div id="todayGlucoseCount" class="stat-value">0회</div><div class="stat-sub">아침/저녁 체크</div></div>
+        <div class="card stat" data-emoji="💗"><div class="stat-label">오늘 혈압</div><div id="todayBpCount" class="stat-value">0회</div><div class="stat-sub">수축기/이완기 기록</div></div>
+        <div class="card stat" data-emoji="🧪"><div class="stat-label">최근 A1c</div><div id="latestA1cCard" class="stat-value">-</div><div class="stat-sub">당화혈색소</div></div>
+        <div class="card stat" data-emoji="🔔"><div class="stat-label">오늘 알림</div><div id="todayReminderCount" class="stat-value">0개</div><div class="stat-sub">복약·측정·진료</div></div>
+      </div>
+
+      <div class="card p-card" style="margin-top:14px;">
+        <h2 class="section-title">🚦 건강 경고등 기준</h2>
+        <p class="section-sub">색깔만 봐도 현재 상태를 빠르게 확인할 수 있게 정리했습니다.</p>
+        <div class="grid-4" style="margin-top:12px;">
+          <div class="pill-row"><div><strong style="color:#be123c;">🔴 빨강</strong><span>높음 / 추가 확인 필요</span></div></div>
+          <div class="pill-row"><div><strong style="color:#b45309;">🟡 노랑</strong><span>주의 / 상한 근접</span></div></div>
+          <div class="pill-row"><div><strong style="color:#047857;">🟢 초록</strong><span>목표 범위</span></div></div>
+          <div class="pill-row"><div><strong style="color:#1d4ed8;">🔵 파랑</strong><span>목표보다 낮음</span></div></div>
+        </div>
+      </div>
+
+      <div id="mainStatus" class="status s-normal">
+        <div><h3>🌼 오늘의 건강 상태</h3><p>기록을 입력하면 혈당·혈압·당화혈색소 흐름을 보여드립니다.</p></div>
+        <button class="btn light" onclick="openTab('record')">기록하기</button>
+      </div>
+
+      <div class="grid-2">
+        <div class="card p-card">
+          <h2 class="section-title">🍬 최근 혈당 흐름</h2>
+          <p class="section-sub">최근 14회 혈당 기록입니다.</p>
+          <div id="glucoseChart" class="chart"></div>
+        </div>
+        <div class="card p-card">
+          <h2 class="section-title">💗 최근 혈압 흐름</h2>
+          <p class="section-sub">수축기와 이완기 혈압을 함께 봅니다.</p>
+          <div id="bpChart" class="chart"></div>
+        </div>
+      </div>
+
+      <div class="grid-2" style="margin-top:14px;">
+        <div class="card p-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <div><h2 class="section-title">📒 최근 기록</h2><p class="section-sub">혈당·혈압·당화혈색소 통합 기록</p></div>
+            <button class="btn dark small" onclick="downloadCSV()">CSV 저장</button>
+          </div>
+          <div id="timeline" class="timeline"></div>
+        </div>
+        <div class="card p-card">
+          <h2 class="section-title">🏥 다음 일정 & 알림</h2>
+          <p class="section-sub">다가오는 병원 진료와 알림입니다.</p>
+          <div id="upcomingList" class="list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="record" class="view">
+      <div class="card p-card">
+        <h2 class="section-title">📝 오늘 기록하기</h2>
+        <p class="section-sub">필요한 항목만 골라서 입력하세요.</p>
+        <div class="record-tabs">
+          <button class="record-tab active" data-record="glucoseForm">🍬 혈당</button>
+          <button class="record-tab" data-record="bpForm">💗 혈압</button>
+          <button class="record-tab" data-record="a1cForm">🧪 당화혈색소</button>
+          <button class="record-tab" data-record="memoForm">🌿 건강메모</button>
+        </div>
+
+        <form id="glucoseForm" class="record-form active">
+          <div class="form-grid">
+            <div class="field"><label>날짜</label><input id="gDate" type="date" required></div>
+            <div class="field"><label>시간</label><input id="gTime" type="time" required></div>
+            <div class="field full"><label>혈당값</label><div class="big-input"><input id="gValue" type="number" min="20" max="600" inputmode="numeric" placeholder="예: 112" required><span>mg/dL</span></div></div>
+            <div class="field"><label>체크 시간대</label><select id="gPeriod"><option>아침</option><option>점심</option><option>저녁</option><option>취침 전</option><option>기타</option></select></div>
+            <div class="field"><label>식사 기준</label><select id="gTiming"><option>공복</option><option>식전</option><option>식후 2시간</option><option>운동 후</option><option>기타</option></select></div>
+            <label class="check-row"><span><strong>당뇨약 복용 체크</strong><span>해당 시간대 약을 복용했으면 체크하세요.</span></span><input id="gMedicine" type="checkbox" checked></label>
+            <div class="field full"><label>식사 메모</label><input id="gMeal" placeholder="예: 밥 반 공기, 생선, 국 / 빵, 커피"></div>
+            <div class="field"><label>운동</label><input id="gExercise" placeholder="예: 걷기 30분"></div>
+            <div class="field"><label>컨디션</label><input id="gMemo" placeholder="예: 피곤함, 회식, 감기"></div>
+          </div>
+          <button class="btn full" type="submit">🍬 혈당 저장하기</button>
+        </form>
+
+        <form id="bpForm" class="record-form">
+          <div class="form-grid">
+            <div class="field"><label>날짜</label><input id="bpDate" type="date" required></div>
+            <div class="field"><label>시간</label><input id="bpTime" type="time" required></div>
+            <div class="field"><label>수축기 혈압</label><div class="big-input"><input id="bpSys" type="number" min="60" max="260" placeholder="예: 124" required><span>mmHg</span></div></div>
+            <div class="field"><label>이완기 혈압</label><div class="big-input"><input id="bpDia" type="number" min="30" max="160" placeholder="예: 78" required><span>mmHg</span></div></div>
+            <div class="field"><label>맥박</label><input id="bpPulse" type="number" min="30" max="220" placeholder="예: 72"></div>
+            <div class="field"><label>측정 상황</label><select id="bpContext"><option>아침 안정 시</option><option>저녁 안정 시</option><option>운동 후</option><option>스트레스 후</option><option>병원 측정</option><option>기타</option></select></div>
+            <div class="field full"><label>메모</label><input id="bpMemo" placeholder="예: 커피 후, 잠 부족, 두통 있음"></div>
+          </div>
+          <button class="btn full blue" type="submit">💗 혈압 저장하기</button>
+        </form>
+
+        <form id="a1cForm" class="record-form">
+          <div class="form-grid">
+            <div class="field"><label>검사일</label><input id="aDate" type="date" required></div>
+            <div class="field"><label>당화혈색소</label><div class="big-input"><input id="aValue" type="number" step="0.1" min="3" max="15" placeholder="예: 6.7" required><span>%</span></div></div>
+            <div class="field"><label>병원/검사기관</label><input id="aHospital" placeholder="예: ○○내과"></div>
+            <div class="field"><label>다음 목표</label><input id="aGoal" placeholder="예: 6.5 아래로"></div>
+            <div class="field full"><label>의사 선생님 메모</label><input id="aMemo" placeholder="예: 식후혈당 관리, 운동 늘리기"></div>
+          </div>
+          <button class="btn full purple" type="submit">🧪 당화혈색소 저장하기</button>
+        </form>
+
+        <form id="memoForm" class="record-form">
+          <div class="form-grid">
+            <div class="field"><label>날짜</label><input id="mDate" type="date" required></div>
+            <div class="field"><label>컨디션</label><select id="mMood"><option>좋음 😊</option><option>보통 🙂</option><option>피곤함 😴</option><option>스트레스 😵</option><option>아픔 🤒</option></select></div>
+            <div class="field full"><label>오늘의 건강 메모</label><textarea id="mMemo" rows="4" placeholder="식사, 운동, 수면, 스트레스, 특이사항을 적어보세요."></textarea></div>
+          </div>
+          <button class="btn full green" type="submit">🌿 건강메모 저장하기</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="schedule" class="view">
+      <div class="grid-2">
+        <div class="card p-card">
+          <h2 class="section-title">🏥 다음 병원 진료 일정</h2>
+          <p class="section-sub">진료일과 미리 알림 시간을 저장하세요.</p>
+          <form id="appointmentForm">
+            <div class="form-grid">
+              <div class="field full"><label>진료 날짜/시간</label><input id="apptDateTime" type="datetime-local" required></div>
+              <div class="field"><label>병원명</label><input id="apptHospital" placeholder="예: ○○내과" required></div>
+              <div class="field"><label>진료 내용</label><select id="apptPurpose"><option>당뇨 정기진료</option><option>혈압 상담</option><option>피검사/당화혈색소</option><option>약 처방</option><option>기타</option></select></div>
+              <div class="field"><label>담당의/메모</label><input id="apptDoctor" placeholder="예: 김○○ 선생님"></div>
+              <div class="field"><label>미리 알림</label><select id="apptRemind"><option value="60">1시간 전</option><option value="180">3시간 전</option><option value="1440">1일 전</option><option value="2880">2일 전</option><option value="10080">1주 전</option></select></div>
+            </div>
+            <button class="btn full purple" type="submit">🏥 진료 일정 저장하기</button>
+          </form>
+          <div id="appointmentList" class="list"></div>
+        </div>
+
+        <div class="card p-card">
+          <h2 class="section-title">🔔 알림 설정</h2>
+          <p class="section-sub">앱이 열려 있을 때 알림이 울립니다. 먼저 알림 허용을 눌러주세요.</p>
+          <button class="btn blue full" type="button" onclick="requestNotification()">🔔 브라우저 알림 허용하기</button>
+          <form id="reminderForm">
+            <div class="form-grid">
+              <div class="field"><label>알림 종류</label><select id="remType"><option>혈당 체크</option><option>혈압 체크</option><option>약 복용</option><option>운동</option><option>물 마시기</option><option>기타</option></select></div>
+              <div class="field"><label>반복</label><select id="remRepeat"><option value="daily">매일</option><option value="once">한 번만</option></select></div>
+              <div class="field"><label>매일 알림 시간</label><input id="remTime" type="time"></div>
+              <div class="field"><label>한 번만 알림</label><input id="remDateTime" type="datetime-local"></div>
+              <div class="field full"><label>알림 문구</label><input id="remTitle" placeholder="예: 저녁 혈당 체크할 시간이에요 🍬"></div>
+            </div>
+            <button class="btn full" type="submit">🔔 알림 저장하기</button>
+          </form>
+          <div class="cute-note" style="margin-top:14px;"><strong>알림 참고</strong><br>단일 index.html 방식에서는 앱을 열어둔 상태에서 알림이 가장 안정적으로 작동합니다. 완전한 백그라운드 푸시는 PWA/서비스워커/Firebase Messaging을 추가해야 합니다.</div>
+          <div id="reminderList" class="list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="settings" class="view">
+      <div class="grid-2">
+        <div class="card p-card">
+          <h2 class="section-title">⚙️ 개인 목표 설정</h2>
+          <p class="section-sub">진료 기준에 맞게 목표를 수정하세요.</p>
+          <div class="form-grid">
+            <div class="field full"><label>이름 또는 별명</label><input id="profileName" placeholder="예: 김대표"></div>
+            <div class="field"><label>식전 혈당 목표 하한</label><input id="targetMin" type="number"></div>
+            <div class="field"><label>식전 혈당 목표 상한</label><input id="targetMax" type="number"></div>
+            <div class="field"><label>식후 혈당 목표 상한</label><input id="afterMealMax" type="number"></div>
+            <div class="field"><label>당화혈색소 목표</label><input id="a1cTarget" type="number" step="0.1"></div>
+            <div class="field"><label>수축기 혈압 목표</label><input id="bpSysTarget" type="number"></div>
+            <div class="field"><label>이완기 혈압 목표</label><input id="bpDiaTarget" type="number"></div>
+            <div class="field full"><label>복용 약 메모</label><textarea id="medicineMemo" rows="3" placeholder="예: 아침 식후 ○○정, 저녁 식후 ○○정"></textarea></div>
+            <div class="field full"><label>진료 메모</label><textarea id="doctorMemo" rows="3" placeholder="의사 선생님이 말한 주의사항"></textarea></div>
+          </div>
+          <button class="btn full green" type="button" onclick="saveProfile()">설정 저장하기</button>
+        </div>
+
+        <div class="card p-card">
+          <h2 class="section-title">💾 백업/복원</h2>
+          <p class="section-sub">브라우저 데이터가 지워질 수 있으니 가끔 백업하세요.</p>
+          <div class="grid-3" style="margin-top:14px;">
+            <button class="btn dark" onclick="exportBackup()">백업 저장</button>
+            <button class="btn light" onclick="document.getElementById('backupInput').click()">백업 불러오기</button>
+            <button class="btn light" onclick="downloadCSV()">CSV 저장</button>
+          </div>
+          <input id="backupInput" type="file" accept="application/json" style="display:none" onchange="importBackup(event)">
+          <div class="warning" style="margin-top:14px;"><strong>주의</strong><br>이 앱은 개인 기록 보조용입니다. 약 복용량 변경, 저혈당·고혈당 대처, 혈압약 조정, 식단 변경은 반드시 담당 의료진 지시를 우선하세요.</div>
+        </div>
+      </div>
+    </section>
+
+    <p class="footer">🌷 이 앱은 진료를 대체하지 않습니다. 혈당·혈압·당화혈색소 목표와 약 복용은 담당 의료진의 지시를 우선하세요.</p>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script type="module">
+    /*****************************************************************
+     * Firebase 실시간 연동 선택 설정
+     * - 기본값은 false: 현재 기기 브라우저에 저장
+     * - true로 바꾸고 firebaseConfig를 입력하면 Firestore 단일 문서에 저장
+     * - 개인 건강정보이므로 실제 사용 전 Firebase Authentication과 보안규칙을 적용하세요.
+     *****************************************************************/
+    const USE_FIREBASE = false;
+
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT.firebaseapp.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    let firebaseReady = false;
+    let db = null;
+    let fs = null;
+    let applyingRemote = false;
+
+    if (USE_FIREBASE) {
+      try {
+        const appMod = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js");
+        const fsMod = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
+        const app = appMod.initializeApp(firebaseConfig);
+        db = fsMod.getFirestore(app);
+        fs = fsMod;
+        firebaseReady = true;
+      } catch (error) {
+        console.error("Firebase 연결 실패:", error);
+        firebaseReady = false;
+      }
+    }
+
+    const STORAGE_KEY = "cute_diabetes_bp_health_note_v2";
+
+    const defaultState = {
+      profile: {
+        name: "",
+        targetMin: 80,
+        targetMax: 130,
+        afterMealMax: 180,
+        a1cTarget: 6.5,
+        bpSysTarget: 130,
+        bpDiaTarget: 80,
+        medicine: "",
+        doctorMemo: ""
+      },
+      glucose: [],
+      bp: [],
+      a1c: [],
+      memos: [],
+      appointments: [],
+      reminders: []
+    };
+
+    let state = loadState();
+
+    function clone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function todayDate() {
+      return new Date().toISOString().slice(0, 10);
+    }
+
+    function nowTime() {
+      const d = new Date();
+      return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+    }
+
+    function uid() {
+      return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return clone(defaultState);
+        const parsed = JSON.parse(raw);
+        return {
+          profile: { ...defaultState.profile, ...(parsed.profile || {}) },
+          glucose: Array.isArray(parsed.glucose) ? parsed.glucose : [],
+          bp: Array.isArray(parsed.bp) ? parsed.bp : [],
+          a1c: Array.isArray(parsed.a1c) ? parsed.a1c : [],
+          memos: Array.isArray(parsed.memos) ? parsed.memos : [],
+          appointments: Array.isArray(parsed.appointments) ? parsed.appointments : [],
+          reminders: Array.isArray(parsed.reminders) ? parsed.reminders : []
+        };
+      } catch {
+        return clone(defaultState);
+      }
+    }
+
+    async function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      if (firebaseReady && !applyingRemote) {
+        try {
+          await fs.setDoc(fs.doc(db, "healthNote", "main"), state);
+        } catch (error) {
+          console.error("Firebase 저장 실패:", error);
+        }
+      }
+    }
+
+    function sortByDateTime(list) {
+      return [...list].sort((a, b) => `${b.date || ""} ${b.time || ""} ${b.createdAt || ""}`.localeCompare(`${a.date || ""} ${a.time || ""} ${a.createdAt || ""}`));
+    }
+
+    function sortedGlucose() { return sortByDateTime(state.glucose); }
+    function sortedBp() { return sortByDateTime(state.bp); }
+    function sortedA1c() { return [...state.a1c].sort((a, b) => String(b.date).localeCompare(String(a.date))); }
+
+    function getGlucoseStatus(entry) {
+      const v = Number(entry.value);
+      const p = state.profile;
+      if (!v) return { label: "미입력", tone: "normal", message: "혈당값을 입력하세요." };
+
+      const min = Number(p.targetMin);
+      const max = entry.timing === "식후 2시간" ? Number(p.afterMealMax) : Number(p.targetMax);
+
+      if (v < 70) return { label: "낮음/확인 필요", tone: "low", message: "저혈당 범위일 수 있습니다. 증상이 있거나 반복되면 의료진 안내를 우선하세요." };
+      if (v < min) return { label: "목표보다 낮음", tone: "low", message: "설정한 목표 하한보다 낮습니다." };
+      if (v > max) return { label: "높음/확인 필요", tone: "danger", message: "목표보다 높습니다. 식사·운동·복약 패턴을 함께 확인하세요." };
+      if (v >= max - 10) return { label: "상한 근접", tone: "watch", message: "목표 범위 안이지만 상한에 가까워 주의가 필요합니다." };
+
+      return { label: "목표 범위", tone: "good", message: "좋습니다. 현재 목표 범위 안입니다." };
+    }
+
+    function getBpStatus(entry) {
+      const sys = Number(entry.sys);
+      const dia = Number(entry.dia);
+      if (!sys || !dia) return { label: "미입력", tone: "normal", message: "혈압값을 입력하세요." };
+
+      if (sys < 90 || dia < 60) return { label: "목표보다 낮음", tone: "low", message: "혈압이 낮은 편입니다. 어지럼 등 증상이 있으면 의료진과 상담하세요." };
+      if (sys >= 140 || dia >= 90) return { label: "높음/확인 필요", tone: "danger", message: "혈압이 높은 범위입니다. 반복되면 의료진 상담이 필요합니다." };
+      if (sys >= 130 || dia >= 80) return { label: "주의", tone: "watch", message: "목표보다 높아질 수 있는 주의 범위입니다." };
+      if (sys >= Number(state.profile.bpSysTarget) - 5 || dia >= Number(state.profile.bpDiaTarget) - 5) return { label: "상한 근접", tone: "watch", message: "목표 범위 안이지만 상한에 가까워 주의하세요." };
+
+      return { label: "목표 범위", tone: "good", message: "현재 기록상 목표 범위입니다." };
+    }
+
+    function getA1cStatus(entry) {
+      const v = Number(entry.value);
+      const target = Number(state.profile.a1cTarget);
+      if (!v) return { label: "미입력", tone: "normal", message: "당화혈색소를 입력하세요." };
+      if (v < 4) return { label: "낮음/확인 필요", tone: "low", message: "당화혈색소가 낮은 편입니다. 검사 결과 해석은 의료진과 확인하세요." };
+      if (v > target + 0.5) return { label: "높음/확인 필요", tone: "danger", message: `설정 목표 ${target}%보다 높습니다. 진료 시 상담하세요.` };
+      if (v > target) return { label: "주의", tone: "watch", message: `설정 목표 ${target}%보다 조금 높습니다.` };
+      return { label: "목표 범위", tone: "good", message: `설정 목표 ${target}% 이내입니다.` };
+    }
+
+    function toneClass(tone) {
+      return tone === "good" ? "s-good" : tone === "watch" ? "s-watch" : tone === "low" ? "s-low" : ["high", "danger"].includes(tone) ? "s-danger" : "s-normal";
+    }
+
+    function setDefaults() {
+      ["gDate","bpDate","aDate","mDate"].forEach(id => document.getElementById(id).value = todayDate());
+      ["gTime","bpTime"].forEach(id => document.getElementById(id).value = nowTime());
+      document.getElementById("remTime").value = "08:00";
+    }
+
+    function render() {
+      const g = sortedGlucose();
+      const bp = sortedBp();
+      const a1c = sortedA1c();
+      const latestG = g[0];
+      const latestBp = bp[0];
+      const latestA1c = a1c[0];
+
+      document.getElementById("heroGlucose").textContent = latestG ? latestG.value : "--";
+      document.getElementById("heroGlucoseSub").textContent = latestG ? `${latestG.date} · ${getGlucoseStatus(latestG).label}` : "기록 없음";
+      document.getElementById("heroBp").textContent = latestBp ? `${latestBp.sys}/${latestBp.dia}` : "--/--";
+      document.getElementById("heroBpSub").textContent = latestBp ? `${latestBp.date} · ${getBpStatus(latestBp).label}` : "기록 없음";
+      document.getElementById("heroA1c").textContent = latestA1c ? latestA1c.value : "--";
+      document.getElementById("heroA1cSub").textContent = latestA1c ? `${latestA1c.date} · ${getA1cStatus(latestA1c).label}` : "기록 없음";
+
+      const nextAppt = getUpcomingAppointments()[0];
+      document.getElementById("heroAppt").textContent = nextAppt ? formatShortDate(nextAppt.datetime) : "--";
+      document.getElementById("heroApptSub").textContent = nextAppt ? `${nextAppt.hospital} · ${nextAppt.purpose}` : "일정 없음";
+
+      document.getElementById("todayGlucoseCount").textContent = `${state.glucose.filter(e => e.date === todayDate()).length}회`;
+      document.getElementById("todayBpCount").textContent = `${state.bp.filter(e => e.date === todayDate()).length}회`;
+      document.getElementById("latestA1cCard").textContent = latestA1c ? `${latestA1c.value}%` : "-";
+      document.getElementById("todayReminderCount").textContent = `${getTodayReminders().length}개`;
+
+      renderMainStatus(latestG, latestBp, latestA1c);
+      renderGlucoseChart(g);
+      renderBpChart(bp);
+      renderTimeline();
+      renderUpcoming();
+      renderAppointments();
+      renderReminders();
+      saveState();
+    }
+
+    function renderMainStatus(latestG, latestBp, latestA1c) {
+      const box = document.getElementById("mainStatus");
+      const messages = [];
+      let tone = "normal";
+      if (latestG) {
+        const s = getGlucoseStatus(latestG);
+        messages.push(`혈당 ${latestG.value}: ${s.label}`);
+        if (["danger", "high"].includes(s.tone)) tone = "danger";
+        else if (tone === "normal" && s.tone === "low") tone = "low";
+        else if (tone === "normal" && s.tone === "watch") tone = "watch";
+        else if (tone === "normal" && s.tone === "good") tone = "good";
+      }
+      if (latestBp) {
+        const s = getBpStatus(latestBp);
+        messages.push(`혈압 ${latestBp.sys}/${latestBp.dia}: ${s.label}`);
+        if (["danger", "high"].includes(s.tone)) tone = "danger";
+        else if (tone === "normal" && s.tone === "low") tone = "low";
+        else if (tone === "normal" && s.tone === "watch") tone = "watch";
+      }
+      if (latestA1c) {
+        const s = getA1cStatus(latestA1c);
+        messages.push(`A1c ${latestA1c.value}%: ${s.label}`);
+        if (tone !== "danger" && ["high", "danger"].includes(s.tone)) tone = "danger";
+        else if (tone === "normal" && s.tone === "low") tone = "low";
+      }
+
+      box.className = `status ${toneClass(tone)}`;
+      box.innerHTML = `
+        <div>
+          <h3>🌼 오늘의 건강 상태</h3>
+          <p>${messages.length ? messages.join(" · ") : "기록을 입력하면 혈당·혈압·당화혈색소 흐름을 보여드립니다."}</p>
+        </div>
+        <button class="btn light" onclick="openTab('record')">기록하기</button>
+      `;
+    }
+
+    function renderLineChart(containerId, points, config) {
+      const el = document.getElementById(containerId);
+      const width = 680, height = 250, pad = 34;
+      if (!points.length) {
+        el.innerHTML = `<div class="empty">아직 기록이 없습니다.</div>`;
+        return;
+      }
+      const values = config.values(points);
+      const min = Math.min(config.min, ...values);
+      const max = Math.max(config.max, ...values);
+      const x = i => pad + (i * (width - pad * 2)) / Math.max(points.length - 1, 1);
+      const y = v => height - pad - ((v - min) / Math.max(max - min, 1)) * (height - pad * 2);
+      const lines = config.lines.map(line => {
+        const d = points.map((p, i) => `${i === 0 ? "M" : "L"} ${x(i)} ${y(line.get(p))}`).join(" ");
+        const circles = points.map((p, i) => `<circle cx="${x(i)}" cy="${y(line.get(p))}" r="5.5" fill="${line.color}" stroke="white" stroke-width="3"><title>${line.label}: ${line.get(p)}</title></circle>`).join("");
+        return `<path d="${d}" fill="none" stroke="${line.color}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path>${circles}`;
+      }).join("");
+      const targetLines = (config.targets || []).map(t => {
+        const yy = y(t.value);
+        return `<line x1="${pad}" y1="${yy}" x2="${width-pad}" y2="${yy}" stroke="${t.color}" stroke-dasharray="6 6" stroke-width="1.4"></line><text x="${pad}" y="${yy - 8}" font-size="12" fill="#64748b">${t.label}</text>`;
+      }).join("");
+      el.innerHTML = `<svg viewBox="0 0 ${width} ${height}"><rect x="0" y="0" width="${width}" height="${height}" rx="24" fill="#ffffff"></rect>${targetLines}${lines}</svg>`;
+    }
+
+    function renderGlucoseChart(entries) {
+      const points = entries.slice(-14).reverse();
+      renderLineChart("glucoseChart", points, {
+        min: 60,
+        max: 220,
+        values: p => p.map(e => Number(e.value)),
+        lines: [{ label: "혈당", color: "#fb7185", get: e => Number(e.value) }],
+        targets: [
+          { value: Number(state.profile.targetMax), label: `식전 상한 ${state.profile.targetMax}`, color: "#fbbf24" },
+          { value: Number(state.profile.afterMealMax), label: `식후 상한 ${state.profile.afterMealMax}`, color: "#c4b5fd" }
+        ]
+      });
+    }
+
+    function renderBpChart(entries) {
+      const points = entries.slice(-14).reverse();
+      renderLineChart("bpChart", points, {
+        min: 50,
+        max: 180,
+        values: p => p.flatMap(e => [Number(e.sys), Number(e.dia)]),
+        lines: [
+          { label: "수축기", color: "#38bdf8", get: e => Number(e.sys) },
+          { label: "이완기", color: "#34d399", get: e => Number(e.dia) }
+        ],
+        targets: [
+          { value: Number(state.profile.bpSysTarget), label: `수축기 목표 ${state.profile.bpSysTarget}`, color: "#93c5fd" },
+          { value: Number(state.profile.bpDiaTarget), label: `이완기 목표 ${state.profile.bpDiaTarget}`, color: "#86efac" }
+        ]
+      });
+    }
+
+    function combinedTimeline() {
+      const rows = [];
+      state.glucose.forEach(e => rows.push({ type: "glucose", sort: `${e.date} ${e.time}`, ...e }));
+      state.bp.forEach(e => rows.push({ type: "bp", sort: `${e.date} ${e.time}`, ...e }));
+      state.a1c.forEach(e => rows.push({ type: "a1c", sort: `${e.date} 12:00`, ...e }));
+      state.memos.forEach(e => rows.push({ type: "memo", sort: `${e.date} 12:00`, ...e }));
+      return rows.sort((a,b) => String(b.sort).localeCompare(String(a.sort)));
+    }
+
+    function renderTimeline() {
+      const list = document.getElementById("timeline");
+      const rows = combinedTimeline().slice(0, 18);
+      if (!rows.length) {
+        list.innerHTML = `<div class="empty">첫 기록을 추가하면 이곳에 표시됩니다.</div>`;
+        return;
+      }
+      list.innerHTML = rows.map(e => {
+        let icon = "🌿", title = "", sub = "", memo = "", status = { label: "메모", tone: "normal" };
+        if (e.type === "glucose") {
+          icon = "🍬";
+          status = getGlucoseStatus(e);
+          title = `혈당 ${e.value} mg/dL`;
+          sub = `${e.date} · ${e.time} · ${e.period} ${e.timing} · 약 ${e.medicineTaken ? "복용" : "미체크"}`;
+          memo = [e.meal && `식사: ${escapeHtml(e.meal)}`, e.exercise && `운동: ${escapeHtml(e.exercise)}`, e.memo && `메모: ${escapeHtml(e.memo)}`].filter(Boolean).join(" · ");
+        } else if (e.type === "bp") {
+          icon = "💗";
+          status = getBpStatus(e);
+          title = `혈압 ${e.sys}/${e.dia} mmHg`;
+          sub = `${e.date} · ${e.time} · ${e.context}${e.pulse ? ` · 맥박 ${e.pulse}` : ""}`;
+          memo = e.memo ? escapeHtml(e.memo) : "";
+        } else if (e.type === "a1c") {
+          icon = "🧪";
+          status = getA1cStatus(e);
+          title = `당화혈색소 ${e.value}%`;
+          sub = `${e.date}${e.hospital ? ` · ${escapeHtml(e.hospital)}` : ""}${e.goal ? ` · 목표 ${escapeHtml(e.goal)}` : ""}`;
+          memo = e.memo ? escapeHtml(e.memo) : "";
+        } else {
+          icon = "🌿";
+          title = e.mood;
+          sub = `${e.date} · 건강메모`;
+          memo = e.memo ? escapeHtml(e.memo) : "";
+          status = { label: "메모", tone: "normal" };
+        }
+
+        return `
+          <article class="item">
+            <div class="item-icon">${icon}</div>
+            <div><strong>${title}</strong><span>${sub}</span></div>
+            <div class="item-actions"><span class="chip ${toneClass(status.tone)}">${status.label}</span><button class="btn light small" onclick="deleteRecord('${e.type}', '${e.id}')">삭제</button></div>
+            ${memo ? `<div class="item-memo">${memo}</div>` : ""}
+          </article>
+        `;
+      }).join("");
+    }
+
+    function getUpcomingAppointments() {
+      const now = new Date();
+      return state.appointments
+        .filter(a => new Date(a.datetime) >= now)
+        .sort((a,b) => new Date(a.datetime) - new Date(b.datetime));
+    }
+
+    function getTodayReminders() {
+      const today = todayDate();
+      return state.reminders.filter(r => r.enabled !== false && (r.repeat === "daily" || String(r.dateTime || "").slice(0,10) === today));
+    }
+
+    function renderUpcoming() {
+      const rows = [
+        ...getUpcomingAppointments().slice(0, 4).map(a => ({ kind: "🏥", title: `${a.hospital} · ${a.purpose}`, sub: `${formatDateTime(a.datetime)} · ${a.remindMinutes}분 전 알림` })),
+        ...state.reminders.filter(r => r.enabled !== false).slice(0, 5).map(r => ({ kind: "🔔", title: r.title || r.type, sub: r.repeat === "daily" ? `매일 ${r.time}` : formatDateTime(r.dateTime) }))
+      ].slice(0, 7);
+
+      const el = document.getElementById("upcomingList");
+      if (!rows.length) {
+        el.innerHTML = `<div class="empty">다가오는 일정이나 알림이 없습니다.</div>`;
+        return;
+      }
+      el.innerHTML = rows.map(r => `<div class="pill-row"><div><strong>${r.kind} ${escapeHtml(r.title)}</strong><span>${escapeHtml(r.sub)}</span></div></div>`).join("");
+    }
+
+    function renderAppointments() {
+      const el = document.getElementById("appointmentList");
+      const rows = getUpcomingAppointments();
+      if (!rows.length) {
+        el.innerHTML = `<div class="empty">저장된 진료 일정이 없습니다.</div>`;
+        return;
+      }
+      el.innerHTML = rows.map(a => `
+        <div class="pill-row">
+          <div><strong>🏥 ${escapeHtml(a.hospital)} · ${escapeHtml(a.purpose)}</strong><span>${formatDateTime(a.datetime)}${a.doctor ? ` · ${escapeHtml(a.doctor)}` : ""} · ${a.remindMinutes}분 전 알림</span></div>
+          <button class="btn light small" onclick="deleteAppointment('${a.id}')">삭제</button>
+        </div>
+      `).join("");
+    }
+
+    function renderReminders() {
+      const el = document.getElementById("reminderList");
+      const rows = state.reminders;
+      if (!rows.length) {
+        el.innerHTML = `<div class="empty">저장된 알림이 없습니다.</div>`;
+        return;
+      }
+      el.innerHTML = rows.map(r => `
+        <div class="pill-row">
+          <div><strong>🔔 ${escapeHtml(r.title || r.type)}</strong><span>${escapeHtml(r.type)} · ${r.repeat === "daily" ? `매일 ${r.time}` : formatDateTime(r.dateTime)} · ${r.enabled === false ? "꺼짐" : "켜짐"}</span></div>
+          <div style="display:flex;gap:6px;"><button class="btn light small" onclick="toggleReminder('${r.id}')">${r.enabled === false ? "켜기" : "끄기"}</button><button class="btn light small" onclick="deleteReminder('${r.id}')">삭제</button></div>
+        </div>
+      `).join("");
+    }
+
+    function formatShortDate(value) {
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return "--";
+      return `${d.getMonth()+1}/${d.getDate()}`;
+    }
+
+    function formatDateTime(value) {
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return "";
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+    }
+
+    function escapeHtml(str) {
+      return String(str || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 5200);
+    }
+
+    function notify(title, body) {
+      showToast(`${title} · ${body}`);
+      if ("Notification" in window && Notification.permission === "granted") {
+        new Notification(title, { body });
+      }
+    }
+
+    window.requestNotification = async function() {
+      if (!("Notification" in window)) {
+        alert("이 브라우저는 알림 기능을 지원하지 않습니다.");
+        return;
+      }
+      const result = await Notification.requestPermission();
+      alert(result === "granted" ? "알림이 허용되었습니다." : "알림이 허용되지 않았습니다.");
+    };
+
+    function checkDueReminders() {
+      const now = new Date();
+      const dateKey = todayDate();
+      const minuteKey = `${dateKey}-${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;
+
+      let changed = false;
+
+      state.reminders.forEach(r => {
+        if (r.enabled === false) return;
+        if (r.repeat === "daily") {
+          const dueKey = `${dateKey}-${r.time}`;
+          if (dueKey === minuteKey && r.lastNotifiedKey !== dueKey) {
+            notify("🔔 건강 알림", r.title || r.type);
+            r.lastNotifiedKey = dueKey;
+            changed = true;
+          }
+        } else if (r.dateTime) {
+          const due = new Date(r.dateTime);
+          if (now >= due && r.lastNotifiedKey !== r.id) {
+            notify("🔔 건강 알림", r.title || r.type);
+            r.lastNotifiedKey = r.id;
+            changed = true;
+          }
+        }
+      });
+
+      state.appointments.forEach(a => {
+        const appt = new Date(a.datetime);
+        const remindAt = new Date(appt.getTime() - Number(a.remindMinutes || 60) * 60000);
+        const key = `${a.id}-${a.remindMinutes}`;
+        if (now >= remindAt && now <= appt && a.lastNotifiedKey !== key) {
+          notify("🏥 병원 진료 알림", `${a.hospital} · ${a.purpose} · ${formatDateTime(a.datetime)}`);
+          a.lastNotifiedKey = key;
+          changed = true;
+        }
+      });
+
+      if (changed) render();
+    }
+
+    function openRecordForm(id) {
+      document.querySelectorAll(".record-tab").forEach(btn => btn.classList.toggle("active", btn.dataset.record === id));
+      document.querySelectorAll(".record-form").forEach(form => form.classList.toggle("active", form.id === id));
+    }
+
+    window.openTab = function(tabId) {
+      document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.toggle("active", btn.dataset.tab === tabId));
+      document.querySelectorAll(".view").forEach(view => view.classList.toggle("active", view.id === tabId));
+      if (tabId === "settings") fillProfileForm();
+    };
+
+    document.querySelectorAll(".tab-btn").forEach(btn => btn.addEventListener("click", () => openTab(btn.dataset.tab)));
+    document.querySelectorAll(".record-tab").forEach(btn => btn.addEventListener("click", () => openRecordForm(btn.dataset.record)));
+
+    document.getElementById("glucoseForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const value = Number(document.getElementById("gValue").value);
+      if (!value || value < 20 || value > 600) return alert("혈당값을 20~600 사이로 입력해주세요.");
+      state.glucose.unshift({
+        id: uid(),
+        date: document.getElementById("gDate").value,
+        time: document.getElementById("gTime").value,
+        value,
+        period: document.getElementById("gPeriod").value,
+        timing: document.getElementById("gTiming").value,
+        medicineTaken: document.getElementById("gMedicine").checked,
+        meal: document.getElementById("gMeal").value.trim(),
+        exercise: document.getElementById("gExercise").value.trim(),
+        memo: document.getElementById("gMemo").value.trim(),
+        createdAt: new Date().toISOString()
+      });
+      ["gValue","gMeal","gExercise","gMemo"].forEach(id => document.getElementById(id).value = "");
+      document.getElementById("gTime").value = nowTime();
+      openTab("dashboard");
+      render();
+    });
+
+    document.getElementById("bpForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const sys = Number(document.getElementById("bpSys").value);
+      const dia = Number(document.getElementById("bpDia").value);
+      if (!sys || !dia) return alert("혈압값을 입력해주세요.");
+      state.bp.unshift({
+        id: uid(),
+        date: document.getElementById("bpDate").value,
+        time: document.getElementById("bpTime").value,
+        sys,
+        dia,
+        pulse: document.getElementById("bpPulse").value,
+        context: document.getElementById("bpContext").value,
+        memo: document.getElementById("bpMemo").value.trim(),
+        createdAt: new Date().toISOString()
+      });
+      ["bpSys","bpDia","bpPulse","bpMemo"].forEach(id => document.getElementById(id).value = "");
+      document.getElementById("bpTime").value = nowTime();
+      openTab("dashboard");
+      render();
+    });
+
+    document.getElementById("a1cForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const value = Number(document.getElementById("aValue").value);
+      if (!value || value < 3 || value > 15) return alert("당화혈색소를 3~15 사이로 입력해주세요.");
+      state.a1c.unshift({
+        id: uid(),
+        date: document.getElementById("aDate").value,
+        value,
+        hospital: document.getElementById("aHospital").value.trim(),
+        goal: document.getElementById("aGoal").value.trim(),
+        memo: document.getElementById("aMemo").value.trim(),
+        createdAt: new Date().toISOString()
+      });
+      ["aValue","aHospital","aGoal","aMemo"].forEach(id => document.getElementById(id).value = "");
+      openTab("dashboard");
+      render();
+    });
+
+    document.getElementById("memoForm").addEventListener("submit", event => {
+      event.preventDefault();
+      state.memos.unshift({
+        id: uid(),
+        date: document.getElementById("mDate").value,
+        mood: document.getElementById("mMood").value,
+        memo: document.getElementById("mMemo").value.trim(),
+        createdAt: new Date().toISOString()
+      });
+      document.getElementById("mMemo").value = "";
+      openTab("dashboard");
+      render();
+    });
+
+    document.getElementById("appointmentForm").addEventListener("submit", event => {
+      event.preventDefault();
+      state.appointments.push({
+        id: uid(),
+        datetime: document.getElementById("apptDateTime").value,
+        hospital: document.getElementById("apptHospital").value.trim(),
+        purpose: document.getElementById("apptPurpose").value,
+        doctor: document.getElementById("apptDoctor").value.trim(),
+        remindMinutes: Number(document.getElementById("apptRemind").value),
+        createdAt: new Date().toISOString()
+      });
+      ["apptDateTime","apptHospital","apptDoctor"].forEach(id => document.getElementById(id).value = "");
+      render();
+    });
+
+    document.getElementById("reminderForm").addEventListener("submit", event => {
+      event.preventDefault();
+      const repeat = document.getElementById("remRepeat").value;
+      const time = document.getElementById("remTime").value;
+      const dateTime = document.getElementById("remDateTime").value;
+      if (repeat === "daily" && !time) return alert("매일 알림 시간을 입력해주세요.");
+      if (repeat === "once" && !dateTime) return alert("한 번만 알림 날짜/시간을 입력해주세요.");
+      const type = document.getElementById("remType").value;
+      state.reminders.push({
+        id: uid(),
+        type,
+        repeat,
+        time,
+        dateTime,
+        title: document.getElementById("remTitle").value.trim() || `${type}할 시간이에요 🌷`,
+        enabled: true,
+        createdAt: new Date().toISOString()
+      });
+      document.getElementById("remTitle").value = "";
+      render();
+    });
+
+    window.deleteRecord = function(type, id) {
+      if (!confirm("이 기록을 삭제할까요?")) return;
+      const map = { glucose: "glucose", bp: "bp", a1c: "a1c", memo: "memos" };
+      const key = map[type];
+      state[key] = state[key].filter(e => e.id !== id);
+      render();
+    };
+
+    window.deleteAppointment = function(id) {
+      if (!confirm("이 진료 일정을 삭제할까요?")) return;
+      state.appointments = state.appointments.filter(e => e.id !== id);
+      render();
+    };
+
+    window.deleteReminder = function(id) {
+      if (!confirm("이 알림을 삭제할까요?")) return;
+      state.reminders = state.reminders.filter(e => e.id !== id);
+      render();
+    };
+
+    window.toggleReminder = function(id) {
+      const r = state.reminders.find(e => e.id === id);
+      if (r) r.enabled = r.enabled === false;
+      render();
+    };
+
+    function fillProfileForm() {
+      const p = state.profile;
+      document.getElementById("profileName").value = p.name || "";
+      document.getElementById("targetMin").value = p.targetMin;
+      document.getElementById("targetMax").value = p.targetMax;
+      document.getElementById("afterMealMax").value = p.afterMealMax;
+      document.getElementById("a1cTarget").value = p.a1cTarget;
+      document.getElementById("bpSysTarget").value = p.bpSysTarget;
+      document.getElementById("bpDiaTarget").value = p.bpDiaTarget;
+      document.getElementById("medicineMemo").value = p.medicine || "";
+      document.getElementById("doctorMemo").value = p.doctorMemo || "";
+    }
+
+    window.saveProfile = function() {
+      state.profile = {
+        ...state.profile,
+        name: document.getElementById("profileName").value.trim(),
+        targetMin: Number(document.getElementById("targetMin").value || 80),
+        targetMax: Number(document.getElementById("targetMax").value || 130),
+        afterMealMax: Number(document.getElementById("afterMealMax").value || 180),
+        a1cTarget: Number(document.getElementById("a1cTarget").value || 6.5),
+        bpSysTarget: Number(document.getElementById("bpSysTarget").value || 130),
+        bpDiaTarget: Number(document.getElementById("bpDiaTarget").value || 80),
+        medicine: document.getElementById("medicineMemo").value.trim(),
+        doctorMemo: document.getElementById("doctorMemo").value.trim()
+      };
+      render();
+      alert("설정이 저장되었습니다.");
+    };
+
+    window.exportBackup = function() {
+      downloadFile(`health-note-backup-${todayDate()}.json`, JSON.stringify(state, null, 2), "application/json");
+    };
+
+    window.importBackup = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const imported = JSON.parse(reader.result);
+          state = {
+            profile: { ...defaultState.profile, ...(imported.profile || {}) },
+            glucose: Array.isArray(imported.glucose) ? imported.glucose : [],
+            bp: Array.isArray(imported.bp) ? imported.bp : [],
+            a1c: Array.isArray(imported.a1c) ? imported.a1c : [],
+            memos: Array.isArray(imported.memos) ? imported.memos : [],
+            appointments: Array.isArray(imported.appointments) ? imported.appointments : [],
+            reminders: Array.isArray(imported.reminders) ? imported.reminders : []
+          };
+          render();
+          fillProfileForm();
+          alert("백업을 불러왔습니다.");
+        } catch {
+          alert("백업 파일 형식이 올바르지 않습니다.");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    };
+
+    window.downloadCSV = function() {
+      const rows = [["type","date","time","value1","value2","value3","context","memo"]];
+      state.glucose.forEach(e => rows.push(["glucose", e.date, e.time, e.value, "", "", `${e.period} ${e.timing} medicine:${e.medicineTaken ? "Y" : "N"}`, [e.meal,e.exercise,e.memo].filter(Boolean).join(" / ")]));
+      state.bp.forEach(e => rows.push(["blood_pressure", e.date, e.time, e.sys, e.dia, e.pulse || "", e.context, e.memo || ""]));
+      state.a1c.forEach(e => rows.push(["a1c", e.date, "", e.value, "", "", e.hospital || "", [e.goal,e.memo].filter(Boolean).join(" / ")]));
+      state.memos.forEach(e => rows.push(["memo", e.date, "", "", "", "", e.mood, e.memo || ""]));
+      const csv = rows.map(row => row.map(cell => `"${String(cell ?? "").replaceAll('"','""')}"`).join(",")).join("\n");
+      downloadFile(`health-note-${todayDate()}.csv`, "\ufeff" + csv, "text/csv;charset=utf-8");
+    };
+
+    function downloadFile(filename, content, type) {
+      const blob = new Blob([content], { type });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function startFirebaseSync() {
+      if (!firebaseReady) return;
+      try {
+        const ref = fs.doc(db, "healthNote", "main");
+        fs.onSnapshot(ref, snapshot => {
+          if (!snapshot.exists()) {
+            saveState();
+            return;
+          }
+          applyingRemote = true;
+          const remote = snapshot.data();
+          state = {
+            profile: { ...defaultState.profile, ...(remote.profile || {}) },
+            glucose: Array.isArray(remote.glucose) ? remote.glucose : [],
+            bp: Array.isArray(remote.bp) ? remote.bp : [],
+            a1c: Array.isArray(remote.a1c) ? remote.a1c : [],
+            memos: Array.isArray(remote.memos) ? remote.memos : [],
+            appointments: Array.isArray(remote.appointments) ? remote.appointments : [],
+            reminders: Array.isArray(remote.reminders) ? remote.reminders : []
+          };
+          render();
+          applyingRemote = false;
+        });
+      } catch (error) {
+        console.error("Firebase 동기화 실패:", error);
+      }
+    }
+
+    setDefaults();
+    fillProfileForm();
+    await startFirebaseSync();
+    render();
+    setInterval(checkDueReminders, 30000);
+  </script>
+</body>
+</html>
