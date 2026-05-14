@@ -461,6 +461,11 @@
       </div>
     </header>
 
+    <div id="firebaseStatus" class="card p-card" style="margin-top:14px; border:2px dashed #bfdbfe;">
+      <h2 class="section-title">☁️ Firebase 연결 상태</h2>
+      <p id="firebaseStatusText" class="section-sub">연결 상태 확인 중입니다...</p>
+    </div>
+
     <nav class="tabs">
       <button class="tab-btn active" data-tab="dashboard">홈</button>
       <button class="tab-btn" data-tab="record">기록</button>
@@ -665,15 +670,15 @@
      * - true로 바꾸고 firebaseConfig를 입력하면 Firestore 단일 문서에 저장
      * - 개인 건강정보이므로 실제 사용 전 Firebase Authentication과 보안규칙을 적용하세요.
      *****************************************************************/
-    const USE_FIREBASE = false;
+    const USE_FIREBASE = true;
 
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyA_-BaIvMe2Vw0_bAIlY6tM9H1mmR-AEZE",
+      authDomain: "my-health-note.firebaseapp.com",
+      projectId: "my-health-note",
+      storageBucket: "my-health-note.firebasestorage.app",
+      messagingSenderId: "203113708149",
+      appId: "1:203113708149:web:6d55dccb3afb7bd55ed63c"
     };
 
     let firebaseReady = false;
@@ -689,8 +694,10 @@
         db = fsMod.getFirestore(app);
         fs = fsMod;
         firebaseReady = true;
+        window.__firebaseInitError = null;
       } catch (error) {
         console.error("Firebase 연결 실패:", error);
+        window.__firebaseInitError = error;
         firebaseReady = false;
       }
     }
@@ -718,6 +725,17 @@
     };
 
     let state = loadState();
+
+    function setFirebaseStatus(message, tone = "normal") {
+      const box = document.getElementById("firebaseStatus");
+      const text = document.getElementById("firebaseStatusText");
+      if (!box || !text) return;
+      box.className = `card p-card ${toneClass ? toneClass(tone) : ""}`;
+      box.style.marginTop = "14px";
+      box.style.border = tone === "good" ? "2px solid #a7f3d0" : tone === "danger" ? "2px solid #fecdd3" : tone === "watch" ? "2px solid #fde68a" : "2px dashed #bfdbfe";
+      text.textContent = message;
+    }
+
 
     function clone(obj) {
       return JSON.parse(JSON.stringify(obj));
@@ -762,6 +780,7 @@
           await fs.setDoc(fs.doc(db, "healthNote", "main"), state);
         } catch (error) {
           console.error("Firebase 저장 실패:", error);
+          setFirebaseStatus("❌ Firebase 저장 실패: " + (error.message || error), "danger");
         }
       }
     }
@@ -1379,11 +1398,21 @@
     }
 
     async function startFirebaseSync() {
-      if (!firebaseReady) return;
+      if (!USE_FIREBASE) {
+        setFirebaseStatus("📱 현재는 기기 내부 저장 모드입니다. USE_FIREBASE가 false입니다.", "watch");
+        return;
+      }
+      if (!firebaseReady) {
+        const msg = window.__firebaseInitError ? (window.__firebaseInitError.message || window.__firebaseInitError) : "Firebase 초기화 실패";
+        setFirebaseStatus("❌ Firebase 연결 실패: " + msg, "danger");
+        return;
+      }
       try {
+        setFirebaseStatus("☁️ Firebase 연결 시도 중...", "normal");
         const ref = fs.doc(db, "healthNote", "main");
         fs.onSnapshot(ref, snapshot => {
           if (!snapshot.exists()) {
+            setFirebaseStatus("☁️ Firebase 연결됨. 아직 서버 데이터가 없어 현재 기기 데이터를 처음 저장합니다.", "watch");
             saveState();
             return;
           }
@@ -1400,9 +1429,14 @@
           };
           render();
           applyingRemote = false;
+          setFirebaseStatus("✅ Firebase 연결됨. 휴대폰과 PC가 같은 데이터로 연동됩니다.", "good");
+        }, error => {
+          console.error("Firebase 실시간 읽기 실패:", error);
+          setFirebaseStatus("❌ Firebase 읽기 실패: " + (error.message || error), "danger");
         });
       } catch (error) {
         console.error("Firebase 동기화 실패:", error);
+        setFirebaseStatus("❌ Firebase 동기화 실패: " + (error.message || error), "danger");
       }
     }
 
