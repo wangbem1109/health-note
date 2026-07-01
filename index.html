@@ -464,6 +464,7 @@
     <div id="firebaseStatus" class="card p-card" style="margin-top:14px; border:2px dashed #bfdbfe;">
       <h2 class="section-title">☁️ Firebase 연결 상태</h2>
       <p id="firebaseStatusText" class="section-sub">연결 상태 확인 중입니다...</p>
+      <div id="firebaseAuthActions" style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;"></div>
     </div>
 
     <nav class="tabs">
@@ -684,15 +685,23 @@
     let firebaseReady = false;
     let db = null;
     let fs = null;
+    let auth = null;
+    let authMod = null;
+    let currentUser = null;
+    let userDocRef = null;
+    let unsubscribeHealthNote = null;
     let applyingRemote = false;
 
     if (USE_FIREBASE) {
       try {
         const appMod = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js");
         const fsMod = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js");
+        const authModule = await import("https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js");
         const app = appMod.initializeApp(firebaseConfig);
         db = fsMod.getFirestore(app);
         fs = fsMod;
+        auth = authModule.getAuth(app);
+        authMod = authModule;
         firebaseReady = true;
         window.__firebaseInitError = null;
       } catch (error) {
@@ -775,12 +784,25 @@
 
     async function saveState() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      if (firebaseReady && !applyingRemote) {
+
+      // Firebase 저장은 Google 로그인 후, 본인 전용 문서에만 저장합니다.
+      // 저장 경로: users/{내 Firebase UID}/healthNote/main
+      if (firebaseReady && currentUser && userDocRef && !applyingRemote) {
         try {
-          await fs.setDoc(fs.doc(db, "healthNote", "main"), state);
+          await fs.setDoc(userDocRef, {
+            ...state,
+            ownerUid: currentUser.uid,
+            ownerEmail: currentUser.email || "",
+            updatedAt: fs.serverTimestamp()
+          });
+          setFirebaseStatus("✅ Firebase 저장 완료. 휴대폰과 PC가 같은 Google 계정으로 연동됩니다.", "good");
         } catch (error) {
           console.error("Firebase 저장 실패:", error);
-          setFirebaseStatus("❌ Firebase 저장 실패: " + (error.message || error), "danger");
+          const code = error.code || "";
+          let guide = "";
+          if (code.includes("permission-denied")) guide = " / Firestore 규칙을 users/{uid}/healthNote/main 허용 규칙으로 바꿔야 합니다.";
+          if (code.includes("unauthenticated")) guide = " / Google 로그인이 필요합니다.";
+          setFirebaseStatus("❌ Firebase 저장 실패: " + (error.message || error) + guide, "danger");
         }
       }
     }
@@ -1397,25 +1419,94 @@
       URL.revokeObjectURL(url);
     }
 
+    function updateFirebaseActions() {
+      const box = document.getElementById("firebaseAuthActions");
+      if (!box) return;
+      if (!USE_FIREBASE || !firebaseReady) {
+        box.innerHTML = "";
+        return;
+      }
+      if (currentUser) {
+        box.innerHTML = `
+          <span class="chip s-good">로그인: ${escapeHtml(currentUser.email || "Google 계정")}</span>
+          <button class="btn light small" onclick="logoutFirebaseGoogle()">로그아웃</button>
+        `;
+      } else {
+        box.innerHTML = `
+          <button class="btn blue small" onclick="loginFirebaseGoogle()">Google 계정으로 Firebase 연결</button>
+          <span class="chip s-watch">로그인 전에는 이 기기에만 저장됩니다.</span>
+        `;
+      }
+    }
+
+    window.loginFirebaseGoogle = async function() {
+      if (!auth || !authMod) return alert("Firebase Auth가 아직 준비되지 않았습니다.");
+      try {
+        const provider = new authMod.GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: "select_account" });
+        await authMod.signInWithPopup(auth, provider);
+        await startFirebaseSync();
+      } catch (error) {
+        console.error("Google 로그인 실패:", error);
+        setFirebaseStatus("❌ Google 로그인 실패: " + (error.message || error), "danger");
+        updateFirebaseActions();
+      }
+    };
+
+    window.logoutFirebaseGoogle = async function() {
+      if (!auth || !authMod) return;
+      try {
+        if (unsubscribeHealthNote) {
+          unsubscribeHealthNote();
+          unsubscribeHealthNote = null;
+        }
+        await authMod.signOut(auth);
+        currentUser = null;
+        userDocRef = null;
+        setFirebaseStatus("📱 로그아웃되었습니다. 지금부터는 이 기기 내부에만 저장됩니다.", "watch");
+        updateFirebaseActions();
+      } catch (error) {
+        alert("로그아웃 실패: " + (error.message || error));
+      }
+    };
+
     async function startFirebaseSync() {
       if (!USE_FIREBASE) {
         setFirebaseStatus("📱 현재는 기기 내부 저장 모드입니다. USE_FIREBASE가 false입니다.", "watch");
+        updateFirebaseActions();
         return;
       }
       if (!firebaseReady) {
         const msg = window.__firebaseInitError ? (window.__firebaseInitError.message || window.__firebaseInitError) : "Firebase 초기화 실패";
         setFirebaseStatus("❌ Firebase 연결 실패: " + msg, "danger");
+        updateFirebaseActions();
         return;
       }
+
       try {
-        setFirebaseStatus("☁️ Firebase 연결 시도 중...", "normal");
-        const ref = fs.doc(db, "healthNote", "main");
-        fs.onSnapshot(ref, snapshot => {
+        setFirebaseStatus("☁️ Firebase 준비 완료. Google 로그인 후 PC·휴대폰 연동이 됩니다.", "watch");
+
+        currentUser = auth.currentUser;
+        updateFirebaseActions();
+
+        if (!currentUser) {
+          setFirebaseStatus("🔐 Firebase 저장을 사용하려면 Google 로그인이 필요합니다. 로그인 전 기록은 이 기기에만 저장됩니다.", "watch");
+          return;
+        }
+
+        userDocRef = fs.doc(db, "users", currentUser.uid, "healthNote", "main");
+
+        if (unsubscribeHealthNote) unsubscribeHealthNote();
+
+        setFirebaseStatus("☁️ Firebase 데이터 불러오는 중...", "normal");
+
+        unsubscribeHealthNote = fs.onSnapshot(userDocRef, snapshot => {
           if (!snapshot.exists()) {
             setFirebaseStatus("☁️ Firebase 연결됨. 아직 서버 데이터가 없어 현재 기기 데이터를 처음 저장합니다.", "watch");
             saveState();
             return;
           }
+
           applyingRemote = true;
           const remote = snapshot.data();
           state = {
@@ -1427,17 +1518,32 @@
             appointments: Array.isArray(remote.appointments) ? remote.appointments : [],
             reminders: Array.isArray(remote.reminders) ? remote.reminders : []
           };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
           render();
           applyingRemote = false;
-          setFirebaseStatus("✅ Firebase 연결됨. 휴대폰과 PC가 같은 데이터로 연동됩니다.", "good");
+          setFirebaseStatus("✅ Firebase 연결됨. 같은 Google 계정으로 휴대폰과 PC가 연동됩니다.", "good");
+          updateFirebaseActions();
         }, error => {
           console.error("Firebase 실시간 읽기 실패:", error);
-          setFirebaseStatus("❌ Firebase 읽기 실패: " + (error.message || error), "danger");
+          const code = error.code || "";
+          let guide = "";
+          if (code.includes("permission-denied")) guide = " / Firestore 규칙을 users/{uid}/healthNote/main 허용 규칙으로 바꾸세요.";
+          setFirebaseStatus("❌ Firebase 읽기 실패: " + (error.message || error) + guide, "danger");
+          updateFirebaseActions();
         });
       } catch (error) {
         console.error("Firebase 동기화 실패:", error);
         setFirebaseStatus("❌ Firebase 동기화 실패: " + (error.message || error), "danger");
+        updateFirebaseActions();
       }
+    }
+
+    if (firebaseReady && auth && authMod) {
+      authMod.onAuthStateChanged(auth, async user => {
+        currentUser = user;
+        updateFirebaseActions();
+        if (user) await startFirebaseSync();
+      });
     }
 
     setDefaults();
